@@ -3,21 +3,10 @@ import json
 import csv
 
 
-headers = {
-    "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) //"
-                  "Chrome/117.0.0.0 Safari/537.36"
-}
-
-
-def get_vacancies():
+def get_vacancies(params):
     vacancies_data = []
     url = "https://api.hh.ru/vacancies"
-    params = {
-        "text": "Слесарь",
-        "area": 2,
-        "per_page": 30
-    }
-    response = requests.get(url=url, params=params, headers=headers)
+    response = requests.get(url=url, params=params)
     data = response.json()
     vacancies = data.get("items", [])
     for vacancy in vacancies:
@@ -59,8 +48,3 @@ def save_data_csv(vacancies_data):
         writer = csv.DictWriter(file, fieldnames=cols)
         writer.writeheader()
         writer.writerows(vacancies_data)
-
-
-if __name__ == "__main__":
-    save_data_json(get_vacancies())
-    save_data_csv(get_vacancies())
