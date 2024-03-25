@@ -16,14 +16,13 @@ keyboard1 = types.ReplyKeyboardMarkup(True)
 
 @bot.message_handler(commands=['start'])
 def menu(message):
-    print(message.text)
     key = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn_1 = types.KeyboardButton(text="Изменить город")
     btn_2 = types.KeyboardButton(text="Изменить название")
     btn_3 = types.KeyboardButton(text="Выбрать количество вакансий")
     btn_4 = types.KeyboardButton(text="Начать парсинг")
     key.add(btn_1, btn_2, btn_3, btn_4)
-    bot.send_message(message.chat.id, 'Выберите пункт', reply_markup=key)
+    bot.send_message(message.chat.id, 'Выберите нужную операцию', reply_markup=key)
 
 
 @bot.message_handler(content_types=['text'])
@@ -36,6 +35,8 @@ def check_message(message):
         get_vacancy_title(message)
     elif message.text == 'Выбрать количество вакансий':
         get_vacancy_amount(message)
+    else:
+        bot.send_message(message.from_user.id, 'Неизвестная команда')
 
 
 def get_vacancy_area(message):
@@ -66,8 +67,12 @@ def get_vacancy_amount(message):
 
 def save_vacancy_amount(message):
     global params
-    params['per_page'] = int(message.text)
-    bot.send_message(message.from_user.id, 'Изменения сохранены')
+    if message.text.isdigit():
+        params['per_page'] = int(message.text)
+        bot.send_message(message.from_user.id, 'Изменения сохранены')
+    else:
+        bot.send_message(message.from_user.id, 'Должно быть число, попробуйте ещё раз')
+        get_vacancy_amount(message)
 
 
 def get_vacancy_title(message):
@@ -77,8 +82,12 @@ def get_vacancy_title(message):
 
 def save_vacancy_title(message):
     global params
-    params['text'] = message.text
-    bot.send_message(message.from_user.id, 'Изменения сохранены')
+    if len(message.text) <= 1 or len(message.text) > 30:
+        bot.send_message(message.from_user.id, 'Некорректное значение, попробуйте ещё раз')
+        get_vacancy_title(message)
+    else:
+        params['text'] = message.text
+        bot.send_message(message.from_user.id, 'Изменения сохранены')
 
 
 def pars(message):
